@@ -1,6 +1,6 @@
 from django.db.models import fields
 from rest_framework import serializers
-from .models import Tag, Blog, User
+from .models import User, News, Task
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -15,19 +15,22 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
-class TagSerializer(serializers.ModelSerializer):
+class NewsSerializer(serializers.ModelSerializer):
+    created_at = serializers.DateTimeField(
+        format="%Y-%m-%d %H:%M:%S", read_only=True)
+
     class Meta:
-        model = Tag
-        fields = ('id', 'name')
+        model = News
+        fields = ('id', 'content', 'created_at')
 
 
-class BlogSerializer(serializers.ModelSerializer):
-    tags = TagSerializer(many=True, read_only=True)
+class TaskSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(
         format="%Y-%m-%d %H:%M:%S", read_only=True)
     username = serializers.ReadOnlyField(
         source='user.username', read_only=True)
 
     class Meta:
-        model = Blog
-        fields = ('id', 'title', 'content', 'username', 'tags', 'created_at')
+        model = Task
+        fields = ('id', 'title', 'username', 'user_id', 'created_at')
+    extra_kwargs = {'user_id': {'read_only': True}}

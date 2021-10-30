@@ -1,8 +1,7 @@
 from rest_framework import viewsets, generics
-from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
 from . import serializers
-from .models import Blog
+from .models import Task, News
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -10,12 +9,14 @@ class CreateUserView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
 
 
-class BlogReadOnlyView(viewsets.ReadOnlyModelViewSet):
-    queryset = Blog.objects.all()
-    serializer_class = serializers.BlogSerializer
-    permission_classes = (AllowAny,)
+class NewsViewSet(viewsets.ModelViewSet):
+    queryset = News.objects.all()
+    serializer_class = serializers.NewsSerializer
 
 
-class DeleteBlogView(generics.DestroyAPIView):
-    queryset = Blog.objects.all()
-    serializer_class = serializers.BlogSerializer
+class TaskViewSet(viewsets.ModelViewSet):
+    queryset = Task.objects.all()
+    serializer_class = serializers.TaskSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user_id=self.request.user.id)
